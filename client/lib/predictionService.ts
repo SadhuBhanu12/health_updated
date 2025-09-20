@@ -9,7 +9,7 @@ export interface UnifiedPrediction {
   raw?: any;
 }
 
-const DEFAULT_ENDPOINT = "https://health-advisor-jogw.onrender.com/predict";
+const DEFAULT_ENDPOINT = "/api/predict";
 
 function categorize(prob: number): string {
   if (prob >= 0.75) return "High Risk";
