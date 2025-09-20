@@ -18,6 +18,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { userDataService } from "@/lib/userDataService";
 import { DiabetesForm, HypertensionForm, HeartDiseaseForm } from "@/components/AssessmentForms";
+import { predict, type AssessmentType } from "@/lib/predictionService";
 
 // Enhanced type definitions for ML model specific fields
 interface HealthAssessmentData {
