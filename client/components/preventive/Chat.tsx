@@ -63,6 +63,9 @@ export default function Chat({ embedded = false, className = "" }: { embedded?: 
     risk_percentage: number;
     risk_category: string;
     confidence_score: number;
+    vaccines?: string[];
+    screenings?: string[];
+    recommendations?: string[];
   } | null>(null);
 
   useEffect(() => {
@@ -112,7 +115,13 @@ export default function Chat({ embedded = false, className = "" }: { embedded?: 
       const assessment: AssessmentType = "hypertension";
       const payload: any = {
         age: draft.age,
-        sex: draft.gender === "male" ? "1" : draft.gender === "female" ? "0" : "0",
+        gender: draft.gender, // expected by upstream
+        lifestyle: {
+          smoker: draft.smoker,
+          sedentary: draft.sedentary,
+          alcohol: draft.alcohol,
+        },
+        family_history: draft.familyHistory,
         sysBP: draft.systolicBP ?? undefined,
         diaBP: draft.diastolicBP ?? undefined,
         glucose: draft.fastingGlucose ?? undefined,
@@ -126,6 +135,9 @@ export default function Chat({ embedded = false, className = "" }: { embedded?: 
         risk_percentage: unified.risk_percentage,
         risk_category: unified.risk_category,
         confidence_score: unified.confidence_score,
+        vaccines: unified.vaccines,
+        screenings: unified.screenings,
+        recommendations: unified.recommendations,
       });
     } catch (e) {
       setPrediction(null);
@@ -358,20 +370,51 @@ export default function Chat({ embedded = false, className = "" }: { embedded?: 
                 {predicting && <div className="text-xs text-muted-foreground">Analyzing…</div>}
               </div>
               {prediction ? (
-                <div className="mt-2 grid grid-cols-3 gap-2 text-center">
-                  <div className="p-2 rounded bg-emerald-50">
-                    <div className="text-xs text-emerald-700">Risk</div>
-                    <div className="text-lg font-semibold text-emerald-900">{prediction.risk_percentage}%</div>
+                <>
+                  <div className="mt-2 grid grid-cols-3 gap-2 text-center">
+                    <div className="p-2 rounded bg-emerald-50">
+                      <div className="text-xs text-emerald-700">Risk</div>
+                      <div className="text-lg font-semibold text-emerald-900">{prediction.risk_percentage}%</div>
+                    </div>
+                    <div className="p-2 rounded bg-amber-50">
+                      <div className="text-xs text-amber-700">Category</div>
+                      <div className="text-sm font-semibold text-amber-900">{prediction.risk_category}</div>
+                    </div>
+                    <div className="p-2 rounded bg-sky-50">
+                      <div className="text-xs text-sky-700">Confidence</div>
+                      <div className="text-sm font-semibold text-sky-900">{Math.round(prediction.confidence_score*100)}%</div>
+                    </div>
                   </div>
-                  <div className="p-2 rounded bg-amber-50">
-                    <div className="text-xs text-amber-700">Category</div>
-                    <div className="text-sm font-semibold text-amber-900">{prediction.risk_category}</div>
-                  </div>
-                  <div className="p-2 rounded bg-sky-50">
-                    <div className="text-xs text-sky-700">Confidence</div>
-                    <div className="text-sm font-semibold text-sky-900">{Math.round(prediction.confidence_score*100)}%</div>
-                  </div>
-                </div>
+
+                  {(prediction.vaccines || prediction.screenings || prediction.recommendations) && (
+                    <div className="mt-3 grid gap-3 sm:grid-cols-3">
+                      {!!prediction.vaccines?.length && (
+                        <section className="rounded-lg border border-green-200 bg-green-50 p-3">
+                          <h3 className="mb-2 text-sm font-medium text-green-900">Vaccines</h3>
+                          <ul className="list-disc space-y-1 pl-4 text-xs text-green-900/90">
+                            {prediction.vaccines.map((v) => <li key={v}>{v}</li>)}
+                          </ul>
+                        </section>
+                      )}
+                      {!!prediction.screenings?.length && (
+                        <section className="rounded-lg border border-blue-200 bg-blue-50 p-3">
+                          <h3 className="mb-2 text-sm font-medium text-blue-900">Screenings</h3>
+                          <ul className="list-disc space-y-1 pl-4 text-xs text-blue-900/90">
+                            {prediction.screenings.map((s) => <li key={s}>{s}</li>)}
+                          </ul>
+                        </section>
+                      )}
+                      {!!prediction.recommendations?.length && (
+                        <section className="rounded-lg border border-amber-200 bg-amber-50 p-3">
+                          <h3 className="mb-2 text-sm font-medium text-amber-900">Recommendations</h3>
+                          <ul className="list-disc space-y-1 pl-4 text-xs text-amber-900/90">
+                            {prediction.recommendations.map((r) => <li key={r}>{r}</li>)}
+                          </ul>
+                        </section>
+                      )}
+                    </div>
+                  )}
+                </>
               ) : (
                 !predicting && (
                   <div className="mt-2 text-xs text-muted-foreground">
@@ -381,7 +424,12 @@ export default function Chat({ embedded = false, className = "" }: { embedded?: 
               )}
             </div>
 
-            <PlanDisplay plan={plan} user={profile} />
+            <PlanDisplay plan={{
+              title: prediction ? "AI Preventive Plan" : plan.title,
+              vaccines: prediction?.vaccines && prediction.vaccines.length ? prediction.vaccines : plan.vaccines,
+              screenings: prediction?.screenings && prediction.screenings.length ? prediction.screenings : plan.screenings,
+              lifestyle: prediction?.recommendations && prediction.recommendations.length ? prediction.recommendations : plan.lifestyle,
+            }} user={profile} />
 
             <div className="text-center text-xs text-muted-foreground">
               Want to start over?{' '}
