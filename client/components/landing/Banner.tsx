@@ -1,3 +1,4 @@
+import * as React from "react";
 import { X, Sparkles } from "lucide-react";
 import { useEffect, useState } from "react";
 
