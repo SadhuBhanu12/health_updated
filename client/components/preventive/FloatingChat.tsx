@@ -1,9 +1,20 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { MessageCircle, X } from "lucide-react";
 import Chat from "./Chat";
 
 export default function FloatingChat() {
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const openHandler = () => setOpen(true);
+    const closeHandler = () => setOpen(false);
+    window.addEventListener("open_chatbot", openHandler);
+    window.addEventListener("close_chatbot", closeHandler);
+    return () => {
+      window.removeEventListener("open_chatbot", openHandler);
+      window.removeEventListener("close_chatbot", closeHandler);
+    };
+  }, []);
 
   return (
     <div className="fixed bottom-4 right-4 z-50">
