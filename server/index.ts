@@ -19,5 +19,38 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
 
+  // Proxy to external ML model (Render)
+  app.post("/api/predict", async (req, res) => {
+    const renderUrl = "https://health-advisor-jogw.onrender.com/predict";
+    try {
+      const { assessment, data, ...rest } = req.body || {};
+      const merged = data && typeof data === "object" ? { assessment, ...data } : { assessment, ...rest };
+
+      const controller = new AbortController();
+      const t = setTimeout(() => controller.abort(), 20000);
+      const upstream = await fetch(renderUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(merged),
+        signal: controller.signal,
+      });
+      clearTimeout(t);
+
+      const text = await upstream.text();
+      let json: any;
+      try { json = JSON.parse(text); } catch {
+        json = { raw: text };
+      }
+
+      if (!upstream.ok) {
+        return res.status(upstream.status).json({ error: "Upstream error", status: upstream.status, data: json });
+        }
+
+      return res.json(json);
+    } catch (e: any) {
+      return res.status(500).json({ error: "Proxy failed", message: e?.message || String(e) });
+    }
+  });
+
   return app;
 }

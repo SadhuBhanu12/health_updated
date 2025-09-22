@@ -18,6 +18,7 @@ import {
 import { Link, useNavigate } from "react-router-dom";
 import { userDataService } from "@/lib/userDataService";
 import { DiabetesForm, HypertensionForm, HeartDiseaseForm } from "@/components/AssessmentForms";
+import { predict, type AssessmentType } from "@/lib/predictionService";
 
 // Enhanced type definitions for ML model specific fields
 interface HealthAssessmentData {
@@ -182,43 +183,22 @@ export default function Assessment() {
     try {
       const data = prepareDataForBackend();
 
-      // Real ML backend endpoints
-      const endpoints = {
-        diabetes: "http://localhost:8000/predict/diabetes",
-        hypertension: "http://localhost:8000/predict/hypertension",
-        stroke: "http://localhost:8000/predict/heart" // Using heart disease model for stroke assessment
-      };
+      if (!selectedAssessment) throw new Error("No assessment selected");
 
       let result: PredictionResult;
 
       try {
-        // Connect to trained ML backend service
-        const response = await fetch(endpoints[selectedAssessment as keyof typeof endpoints], {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-
-        if (!response.ok) {
-          throw new Error(`Backend prediction failed: ${response.status} ${response.statusText}`);
-        }
-
-        const rawResult = await response.json();
-
-        // Transform backend response to match our interface
+        const unified = await predict(selectedAssessment as AssessmentType, data);
         result = {
-          risk_percentage: rawResult.risk_percentage || rawResult.probability * 100 || 0,
-          risk_category: rawResult.risk_category || (rawResult.probability > 0.6 ? "High Risk" : rawResult.probability > 0.3 ? "Moderate Risk" : "Low Risk"),
-          confidence_score: rawResult.confidence_score || rawResult.confidence || 0.9,
-          key_factors: rawResult.key_factors || rawResult.factors || [],
-          recommendations: rawResult.recommendations || []
-        };
-
-      } catch (fetchError) {
-        console.error("ML Backend error:", fetchError);
-        throw new Error(`Failed to get prediction from ML service: ${fetchError.message}`);
+          risk_percentage: unified.risk_percentage,
+          risk_category: unified.risk_category,
+          confidence_score: unified.confidence_score,
+          key_factors: unified.key_factors,
+          recommendations: unified.recommendations,
+        } as PredictionResult;
+      } catch (fetchError: any) {
+        console.error("Prediction service error:", fetchError);
+        throw new Error(`Failed to get prediction from ML service: ${fetchError.message || fetchError}`);
       }
 
       const enrichedResult = {

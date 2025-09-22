@@ -1,19 +1,18 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { 
-  Heart, Activity, Brain, TrendingUp, 
-  Shield, Users, CheckCircle, ArrowRight,
-  Stethoscope, BarChart3, Star, Target
-} from "lucide-react";
+import { Heart, Brain, CheckCircle, ArrowRight, Stethoscope, BarChart3, Star, Target, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
+import Banner from "@/components/landing/Banner";
+import Hero3D from "@/components/landing/Hero3D";
 
 export default function Index() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-white to-teal-50">
+      {/* Banner */}
+      <Banner />
+
       {/* Navigation */}
-      <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+      <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-40">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
@@ -31,39 +30,40 @@ export default function Index() {
             <Button asChild className="bg-primary hover:bg-primary/90">
               <Link to="/assessment">Start Assessment</Link>
             </Button>
-            <Button asChild variant="outline">
-              <Link to="/preventive-care">Open Chatbot</Link>
+            <Button
+              variant="outline"
+              onClick={() => window.dispatchEvent(new CustomEvent("open_chatbot"))}
+            >
+              <MessageCircle className="mr-2 h-4 w-4" /> Chatbot
             </Button>
           </div>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="container mx-auto px-4 pt-16 pb-20">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              <span className="text-gray-900">Chronic Disease Risk</span>
-              <span className="bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">Prediction</span>
+      {/* Hero: Chatbot-focused with 3D background */}
+      <section className="relative">
+        <Hero3D />
+        <div className="container mx-auto px-4 pt-20 pb-24">
+          <div className="max-w-5xl mx-auto text-center">
+            <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
+              <span className="bg-gradient-to-r from-primary to-emerald-600 bg-clip-text text-transparent">AI Preventive Care Chatbot</span>
+              <span className="block text-gray-900">Personalized plans and risk guidance</span>
             </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-              Early detection of chronic diseases and preventive care through Artificial Intelligence technology
-              powered by latest research and medical data analysis to predict your future risks.
+            <p className="text-lg md:text-xl text-gray-700 mb-8 max-w-3xl mx-auto">
+              Chat in a simple, form-like flow. Answer a few questions and instantly get a tailored preventive plan with vaccines, screenings, and lifestyle goals.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-              <Button size="lg" asChild className="text-lg px-8 bg-primary hover:bg-primary/90">
-                <Link to="/assessment">
-                  Start Free Assessment
-                  <ArrowRight className="ml-2 h-5 w-5" />
-                </Link>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" className="text-lg px-8 bg-primary hover:bg-primary/90" onClick={() => window.dispatchEvent(new CustomEvent("open_chatbot"))}>
+                Chat Now
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
               <Button size="lg" variant="outline" asChild className="text-lg px-8">
-                <Link to="/dashboard">View Demo Results</Link>
+                <Link to="/preventive-care">Open Full Page</Link>
               </Button>
             </div>
 
             {/* Stats Cards */}
-            <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div className="mt-12 grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               <Card className="border-0 shadow-lg bg-white/80 backdrop-blur">
                 <CardContent className="p-6 text-center">
                   <div className="text-3xl font-bold text-primary mb-2">3</div>
@@ -71,7 +71,6 @@ export default function Index() {
                   <div className="text-xs text-gray-500 mt-1">Diabetes, Hypertension, Stroke</div>
                 </CardContent>
               </Card>
-              
               <Card className="border-0 shadow-lg bg-white/80 backdrop-blur">
                 <CardContent className="p-6 text-center">
                   <div className="text-3xl font-bold text-primary mb-2">95%</div>
@@ -79,7 +78,6 @@ export default function Index() {
                   <div className="text-xs text-gray-500 mt-1">Based on clinical validation</div>
                 </CardContent>
               </Card>
-              
               <Card className="border-0 shadow-lg bg-white/80 backdrop-blur">
                 <CardContent className="p-6 text-center">
                   <div className="text-3xl font-bold text-primary mb-2">50k+</div>
@@ -243,11 +241,11 @@ export default function Index() {
 
             <div className="text-center">
               <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-2xl flex items-center justify-center">
-                <Shield className="h-8 w-8 text-primary" />
+                <Stethoscope className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Advanced Analytics</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Preventive Care Chatbot</h3>
               <p className="text-gray-600 text-sm">
-                Machine learning algorithms for precise risk calculation
+                Guided, form-like chat that builds a personalized plan
               </p>
             </div>
 
@@ -268,17 +266,19 @@ export default function Index() {
       <section className="bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white">
         <div className="container mx-auto px-4 py-20">
           <div className="max-w-4xl mx-auto text-center">
-            <h2 className="text-4xl font-bold mb-6">Ready to Check Your Health Risk?</h2>
+            <h2 className="text-4xl font-bold mb-6">Ready to Chat with Your Health Assistant?</h2>
             <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-              Take the first step towards better health with our comprehensive risk assessment. 
-              Get personalized insights in just 5 minutes.
+              Get your preventive care plan in minutes.
             </p>
-            <Button size="lg" asChild className="text-lg px-8 bg-primary hover:bg-primary/90">
-              <Link to="/assessment">
-                Start Risk Assessment
+            <div className="flex justify-center gap-4">
+              <Button size="lg" className="text-lg px-8 bg-primary hover:bg-primary/90" onClick={() => window.dispatchEvent(new CustomEvent("open_chatbot"))}>
+                Chatbot
                 <ArrowRight className="ml-2 h-5 w-5" />
-              </Link>
-            </Button>
+              </Button>
+              <Button size="lg" variant="secondary" asChild className="text-lg px-8">
+                <Link to="/assessment">Start Risk Assessment</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </section>
@@ -295,7 +295,7 @@ export default function Index() {
                 <span className="text-xl font-bold text-gray-900">HealthPredict</span>
               </div>
               <p className="text-gray-600 text-sm">
-                Advanced AI-powered health risk assessment platform for early disease detection and prevention.
+                AI-powered preventive care and risk assessment platform.
               </p>
             </div>
 
